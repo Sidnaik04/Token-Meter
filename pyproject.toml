@@ -1,0 +1,24 @@
+[project]
+name = "token-meter"
+version = "0.1.0"
+description = "CLI tool for measuring LLM token usage and API cost"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.4.2",
+    "litellm>=1.96.0",
+    "rich>=15.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.2",
+]
+
+[project.scripts]
+token-meter = "token_meter.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
