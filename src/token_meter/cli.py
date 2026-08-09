@@ -3,6 +3,7 @@ import click
 from token_meter.formatter import build_result, print_json, print_rich
 from token_meter.pricing import calculate_costs
 from token_meter.runner import run_completion
+from token_meter.repl import run_repl
 
 
 @click.command()
@@ -32,6 +33,21 @@ def main(
     json_output: bool,
 ) -> None:
     """Measure LLM token usage and API costs."""
+
+    has_prompt = prompt is not None
+    has_prompt_file = prompt_file is not None
+
+    one_shot = (
+        model is not None and api_key is not None and (has_prompt or has_prompt_file)
+    )
+
+    if not one_shot:
+        run_repl(
+            model=model,
+            api_key=api_key,
+            max_tokens=max_tokens,
+        )
+        return
 
     if prompt and prompt_file:
         raise click.UsageError("Use either --prompt or --prompt-file, not both")
