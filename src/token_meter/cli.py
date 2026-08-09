@@ -4,6 +4,21 @@ from token_meter.formatter import build_result, print_json, print_rich
 from token_meter.pricing import calculate_costs
 from token_meter.runner import run_completion
 from token_meter.repl import run_repl
+from token_meter.exceptions import TokenMeterError
+
+
+def validate_model(model: str) -> None:
+    supported = (
+        model.startswith("gpt-")
+        or model.startswith("o1-")
+        or model.startswith("gemini/")
+    )
+
+    if not supported:
+        raise click.UsageError(
+            "Unsupported model. Token Meter currently supports "
+            "OpenAI (gpt-*, o1-*) and Gemini (gemini/*)."
+        )
 
 
 @click.command()
@@ -65,20 +80,26 @@ def main(
     if not prompt or not prompt.strip():
         raise click.UsageError("Prompt cannot be empty.")
 
-    result = run_completion(
-        model=model, prompt=prompt, api_key=api_key, max_tokens=max_tokens
-    )
+    validate_model(model)
 
-    input_cost, output_cost, total_cost = calculate_costs(result.response)
+    try:
+        result = run_completion(
+            model=model, prompt=prompt, api_key=api_key, max_tokens=max_tokens
+        )
 
-    formatted = build_result(
-        model=result.model,
-        input_tokens=result.input_tokens,
-        output_tokens=result.output_tokens,
-        input_cost=input_cost,
-        output_cost=output_cost,
-        total_cost=total_cost,
-    )
+        input_cost, output_cost, total_cost = calculate_costs(result.response)
+
+        formatted = build_result(
+            model=result.model,
+            input_tokens=result.input_tokens,
+            output_tokens=result.output_tokens,
+            input_cost=input_cost,
+            output_cost=output_cost,
+            total_cost=total_cost,
+        )
+
+    except TokenMeterError as exc:
+        raise click.ClickException(str(exc)) from exc
 
     if json_output:
         print_json(formatted)

@@ -3,6 +3,10 @@ import click
 from token_meter.formatter import build_result, print_rich
 from token_meter.pricing import calculate_costs
 from token_meter.runner import run_completion
+from token_meter.exceptions import (
+    AuthenticationError,
+    TokenMeterError,
+)
 
 PROVIDERS = {
     "OpenAI": [
@@ -132,6 +136,19 @@ def run_repl(
             )
 
             print_rich(formatted)
+
+        except KeyboardInterrupt:
+            click.echo("\nGoodbye.")
+            return
+
+        except AuthenticationError:
+            click.echo("Authentication failed. Please enter your API key again.")
+            api_key = prompt_for_api_key(provider)
+            continue
+
+        except TokenMeterError as exc:
+            click.echo(f"Error: {exc}")
+            continue
 
         except KeyboardInterrupt:
             click.echo("\nGoodbye.")
