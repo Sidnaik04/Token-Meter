@@ -1,18 +1,14 @@
 import click
 
+from token_meter.exceptions import TokenMeterError
 from token_meter.formatter import build_result, print_json, print_rich
 from token_meter.pricing import calculate_costs
-from token_meter.runner import run_completion
 from token_meter.repl import run_repl
-from token_meter.exceptions import TokenMeterError
+from token_meter.runner import run_completion
 
 
 def validate_model(model: str) -> None:
-    supported = (
-        model.startswith("gpt-")
-        or model.startswith("o1-")
-        or model.startswith("gemini/")
-    )
+    supported = model.startswith(("gpt-", "o1-", "gemini/"))
 
     if not supported:
         raise click.UsageError(

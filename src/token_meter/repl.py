@@ -1,12 +1,12 @@
 import click
 
-from token_meter.formatter import build_result, print_rich
-from token_meter.pricing import calculate_costs
-from token_meter.runner import run_completion
 from token_meter.exceptions import (
     AuthenticationError,
     TokenMeterError,
 )
+from token_meter.formatter import build_result, print_rich
+from token_meter.pricing import calculate_costs
+from token_meter.runner import run_completion
 
 PROVIDERS = {
     "OpenAI": [
@@ -149,7 +149,3 @@ def run_repl(
         except TokenMeterError as exc:
             click.echo(f"Error: {exc}")
             continue
-
-        except KeyboardInterrupt:
-            click.echo("\nGoodbye.")
-            return
